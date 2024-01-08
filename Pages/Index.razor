@@ -1,0 +1,43 @@
+﻿@page "/"
+@using Microsoft.Playwright;
+
+@inject ILogger<Index> Logger;
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, everyone x3!</h1>
+
+This should be completely different to the previous change
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<img src="@ImageSource"/>
+<img src="@ImageSource"/>
+<img src="@ImageSource"/>
+
+@code {
+    private string ImageSource { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var playwright = await Playwright.CreateAsync();
+            var browser = await playwright.Chromium.LaunchAsync(new()
+                {
+                    Headless = true
+                });
+
+            var page = await browser.NewPageAsync();
+            await page.GotoAsync("https://www.google.com/");
+
+            var logo = await page.Locator(".lnXdpd").GetAttributeAsync("src");
+
+            ImageSource = $"https://www.google.com{logo}";
+        }
+        catch(Exception exception)
+        {
+            Logger.LogError(exception, nameof(OnInitializedAsync));
+        }
+    }
+}
